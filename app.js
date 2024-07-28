@@ -50,7 +50,15 @@ function getCountryPopulation(country) {
     return [];
 }
 
-// funnction 
+// Other Helper Functions 
+
+function showDiv(element) {
+    element.style.display = "block";
+}
+  
+function closeDiv(element) {
+    element.style.display = "none";
+}
 
 
 // Draw the pie chart, which is the main graph of the drill-down visualization
@@ -61,7 +69,6 @@ function displayPieChart(data) {
         innerRadius = outerRadius * .5,
         innerRadiusMouseOver = outerRadius * .45,
         color = d3.scaleOrdinal(d3.schemeSet3);
-    // color = d3.scaleOrdinal(d3.schemeSpectral[10]);
 
     var svg = d3.selectAll("#pieChart")
         .data([data])
@@ -76,100 +83,101 @@ function displayPieChart(data) {
     var arc = d3.arc().innerRadius(innerRadius).outerRadius(outerRadius);
     var arcMouseOver = d3.arc().innerRadius(innerRadiusMouseOver).outerRadius(outerRadius);
 
-    // var arcs = svg.selectAll("slice")
-    //     .data(pie)
-    //     .enter()
-    //     .append("g")
-    //     .attr("class", "slice")
-    //     .on("mouseover", mouseover)
-    //     .on("mouseout", mouseout)
-    //     .on("click", update);
-
-    // arcs.append("path")
-    //     .attr("d", arc)
-    //     .attr("fill", function (d, i) { return color(i); })
-    //     .append("title")
-    //     .text(function (d) { return d.data['Country/Territory'] + ": " + d.data['World Population Percentage'] + "%"; });
-
-    // d3.selectAll(".slice").selectAll("path").transition()
-    //     .duration(750)
-    //     .delay(10)
-    //     .attr("d", arc);
-
-    // arcs.filter(function (d) { return d.endAngle - d.startAngle > .1; })
-    //     .append("text")
-    //     .attr("dy", ".35em")
-    //     .attr("text-anchor", "middle")
-    //     .attr("transform", function (d) { return "translate(" + arc.centroid(d) + ")rotate(" + angle(d) + ")"; })
-    //     .text(function (d) { return d.data['Country/Territory']; });
-
-
-    svg.selectAll('slice')
+    var slices = svg.selectAll('slice')
         .data(pie)
         .enter()
         .append("g")
-        .attr("class", "slice")
-        .on("mouseover", mouseover)
-        .on("mouseout", mouseout)
-        .on("click", update)
-        .append('path')
+            .attr("class", "slice")
+            .on("mouseover", function(d, i) {
+                d3.select(this)
+                    .select("path")
+                    .transition()
+                    .duration(750)
+                    .attr("d", arcMouseOver);
+
+                var annotation = d.data['Country/Territory'] + ": " + d.data['World Population Percentage'] + "%";
+        
+                var coord = d3.mouse(document.getElementById("pieChart"));
+                var x = coord[0], 
+                    y = coord[1];
+                
+                var tooltip = d3.select("#pieTooltip")
+                tooltip.style("opacity", 1)
+                    .style("opacity", 1)
+                    .style("background", "white")
+                    .style("left", x + 15 + "px")
+                    .style("top", y + 15 + "px")
+                    .html(annotation);        
+            })
+            .on("mouseout", function(d, i) {
+                d3.select(this).select("path")
+                    .transition()
+                    .duration(750)
+                    .attr("d", arc);
+
+                d3.select("#pieTooltip").style("opacity", 0);
+            })
+            .on("click", clickToUpdate);
+    
+    slices.append('path')
         .attr('d', arc)
         .attr("fill", function (d, i) { return color(i); })
-        .transition()
+        .style("opacity", 0.7);
+
+    slices
+        .filter(function (d) { return d.endAngle - d.startAngle > .1; })
+        .append('text')
+            .text(function (d) { return d.data['Country/Territory'] })
+            .attr("transform", function (d) { return "translate(" + arc.centroid(d) + ")rotate(" + angle(d) + ")"; })
+            .attr("text-anchor", "middle")
+            .attr("class", "slice");
+    
+    d3.selectAll("slice").selectAll("path").transition()
         .duration(750)
         .delay(10)
-        .style("opacity", 0.7)
+        .attr("d", arc);
 
-    svg.selectAll('slice')
-        .data(pie)
-        .enter()
-        .append('text')
-        .filter(function (d) { return d.endAngle - d.startAngle > .1; })
-        .text(function (d) { return d.data['Country/Territory'] })
-        .attr("transform", function (d) { return "translate(" + arc.centroid(d) + ")rotate(" + angle(d) + ")"; })
-        .attr("text-anchor", "middle")
-        .attr("class", "slice");
-
-    // Pie chart title			
+    // // Pie chart title			
     svg.append("text")
         .attr("text-anchor", "middle")
         .text("World Population 2022")
-        .attr("class", "pieChartTitle");
-
+        .attr("class", "title");
+    
+    
+    // var narrationDiv = document.getElementById("narration");
+    // closeDiv(narrationDiv);
 
     function angle(d) {
         var a = (d.startAngle + d.endAngle) * 90 / Math.PI - 90;
         return a > 90 ? a - 180 : a;
     }
 
-    function mouseover() {
-        d3.select(this).select("path")
-            .transition()
-            .duration(750)
-            .attr("d", arcMouseOver);
-    }
+    function clickToUpdate(d, i) {
+        var country = d.data['Country/Territory'];
+        var dataRow = getCountryPopulation(country);
 
-    function mouseout() {
-        d3.select(this).select("path")
-            .transition()
-            .duration(750)
-            .attr("d", arc);
-    }
+        updateBarChart(dataRow, color(i), country);
+        updateLineChart(dataRow, color(i));
+        getNarrationInfo(dataRow, country);
 
-    function update(d, i) {
-        /* update other charts when user selects part of the pie chart */
-        updateBarChart(d.data['Country/Territory'], color(i));
-        updateLineChart(d.data['Country/Territory'], color(i));
+        var pieChartDiv = document.getElementById("pieChart");
+        closeDiv(pieChartDiv);
     }
 }
 
 
 // Bar charts helper functions
 function drawBarChartHelper(data, color, title, update) {
-    var margin = { top: 50, right: 1, bottom: 20, left: 100 },
+    var margin = { top: 50, right: 10, bottom: 20, left: 100 },
         width = 600 - margin.left - margin.right,
         height = 400 - margin.top - margin.bottom,
         barPadding = 1;
+
+    var year = [1970, 1980, 1990, 2000, 2010, 2020];
+
+    var yearScale = d3.scaleBand()
+        .domain(year)
+        .range([0, width]);
 
     var xScale = d3.scaleLinear()
         .domain([0, data.length])
@@ -179,9 +187,6 @@ function drawBarChartHelper(data, color, title, update) {
         .domain([0, d3.max(data, function (d) { return d; })])
         .range([height, 0]);
 
-    var yearScale = d3.scaleBand()
-        .domain([1970, 1980, 1990, 2000, 2010, 2015, 2020, 2022])
-        .range([0, width]);
 
     if (!update) {
         // Initialize bar chart for total world population
@@ -246,50 +251,33 @@ function drawBarChartHelper(data, color, title, update) {
         svg.selectAll("text.title").text(title);
     }
 
+    // Add tooltip
+    plot.selectAll("rect")
+    .on("mouseover", function(d, i) {
+        var annotation = "Population: " + d;
 
-    // // Add y labels to plot	
-    // plot.selectAll("text")
-    //     .data(data)
-    //     .enter()
-    //     .append("text")
-    //     .text(function (d) {
-    //         return d;
-    //     })
-    //     .attr("text-anchor", "middle")
-    //     .attr("x", function (d, i) {
-    //         return (i * (width / data.length)) + ((width / data.length - barPadding) / 2);
-    //     })
-    //     .attr("y", function (d) {
-    //         return yScale(d) + 14;
-    //     })
-    //     .attr("class", "yAxis");
-    // 
-    // // Add x labels to chart	
-    // var xLabels = svg
-    //     .append("g")
-    //     .attr("transform", "translate(" + margin.left + "," + (margin.top + height) + ")");
+        var coord = d3.mouse(document.getElementById("barChart"));
+        var x = coord[0], 
+            y = coord[1];
 
-    // xLabels.selectAll("text.xAxis")
-    //     .data(data)
-    //     .enter()
-    //     .append("text")
-    //     .text(function (d) { return d['Country/Territory']; })
-    //     .attr("text-anchor", "middle")
-    //     // Set x position to the left edge of each bar plus half the bar width
-    //     .attr("x", function (d, i) {
-    //         return (i * (width / data.length)) + ((width / data.length - barPadding) / 2);
-    //     })
-    //     .attr("y", 15)
-    //     .attr("class", "xAxis")
-    //     //.attr("style", "font-size: 12; font-family: Helvetica, sans-serif")
-    //     ;
+        var tooltip = d3.select("#barTooltip")
+        tooltip.style("opacity", 1)
+            .style("opacity", 1)
+            .style("background", "white")
+            .style("left", x + 10 + "px")
+            .style("top", y + 10 + "px")
+            .html(annotation);
+    })
+    .on("mouseout", function(d, i) {
+        d3.select("#barTooltip").style("opacity", 0);
+    })
 }
 
 function displayBarChart(totalData) {
 
-    var totalPopulationData = getYearPopulation(totalData[0], "");
+    var totalPopulationData = getYearPopulation(totalData[0], "0 ");
 
-    var title = "Total Population Change in Decades";
+    var title = "Total Population Growth in Decades";
 
     drawBarChartHelper(totalPopulationData, "grey", title, false);
 }
@@ -300,27 +288,25 @@ function displayBarChart(totalData) {
  * @param {*} country 
  * @param {*} colorChosen 
  */
-function updateBarChart(country, colorChosen) {
+function updateBarChart(dataRow, colorChosen, country) {
 
-    var dataRow = getCountryPopulation(country);
+    var countryPopulationData = getYearPopulation(dataRow, "0 ");
 
-    var countryPopulationData = getYearPopulation(dataRow, "");
-
-    var title = country + "'s Population Change in Decades";
+    var title = `${country}'s Population Growth in Decades`;
 
     drawBarChartHelper(countryPopulationData, colorChosen, title, true);
 }
 
 
 
-function drawLineChartHelper(data, color, title, update) {
-    var margin = { top: 20, right: 10, bottom: 0, left: 50 },
-        width = 600 - margin.left - margin.right,
-        height = 150 - margin.top - margin.bottom;
+function drawLineChartHelper(data, color, update) {
+    var margin = { top: 30, right: 10, bottom: 0, left: 50 },
+    width = 600 - margin.left - margin.right,
+    height = 150 - margin.top - margin.bottom;
 
     var xScale = d3.scaleLinear()
         .domain([0, data.length - 1])
-        .range([0, width]);
+        .range([margin.left, width]);
 
     var yScale = d3.scaleLinear()
         .domain([0, d3.max(data, function (d) { return d; })])
@@ -331,7 +317,8 @@ function drawLineChartHelper(data, color, title, update) {
         .y(function (d) { return yScale(d); });
 
     if (!update) {
-        var svg = d3.select("#lineChart").append("svg")
+        var svg = d3.select("#lineChart")
+            .append("svg")
             .datum(data)
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
@@ -342,9 +329,10 @@ function drawLineChartHelper(data, color, title, update) {
             .attr("id", "lineChartPlot");
 
         plot.append("text")
-            .text(data[data.length - 1].measure)
-            .attr("id", "lineChartTitle2")
-            .attr("x", width / 2)
+            .text(data[data.length - 1])
+            .attr("id", "lineChartTitle")
+            // .attr("x", width / 2)
+            .attr("x", (width + 2 * margin.left + margin.right) / 2)
             .attr("y", height / 2);
 
         plot.append("path")
@@ -352,7 +340,7 @@ function drawLineChartHelper(data, color, title, update) {
             .attr("d", line)
             .attr("stroke", "lightgrey");
 
-        plot.selectAll(".dot")
+        plot.selectAll("dot")
             .data(data)
             .enter().append("circle")
             .attr("class", "dot")
@@ -363,12 +351,6 @@ function drawLineChartHelper(data, color, title, update) {
             .attr("stroke", "lightgrey")
             .append("title")
             .text(function (d) { return d; });
-
-        svg.append("text")
-            .text(title)
-            .attr("id", "lineChartTitle1")
-            .attr("x", margin.left + ((width + margin.right) / 2))
-            .attr("y", 10);
 
     } else {
         var svg = d3.select("#lineChartPlot");
@@ -396,7 +378,7 @@ function drawLineChartHelper(data, color, title, update) {
             .attr("r", 3.5)
             .attr("stroke", "lightgrey");
 
-        path.selectAll("title").text(function (d) { return d; });
+        path.selectAll("texttitle").text(function (d) { return d; });
     }
 }
 
@@ -404,19 +386,40 @@ function drawLineChartHelper(data, color, title, update) {
 function displayLineChart(totalData) {
     var populationData = getYearPopulation(totalData[0], '');
 
-    var title = "Population Growth Trend";
-
-    drawLineChartHelper(populationData, "grey", title, false);
+    drawLineChartHelper(populationData, "grey", false);
 }
 
 
-function updateLineChart(country, colorChosen) {
-
-    var dataRow = getCountryPopulation(country);
+function updateLineChart(dataRow, colorChosen) {
 
     var countryPopulationData = getYearPopulation(dataRow, '');
 
-    var title = country + "'s Population Growth Trend";
+    drawLineChartHelper(countryPopulationData, colorChosen, true);
+}
 
-    drawLineChartHelper(countryPopulationData, colorChosen, title, true);
+
+function getNarrationInfo(data, country) {
+    var narrationDiv = document.getElementById("narration");
+    showDiv(narrationDiv);
+
+    var rank = data["Rank"]
+    var capital = data["Capital"]
+    var continent = data["Continent"]
+    var area = data["Area (km²)"]
+    var density = data["Density (per km²)"]
+    var growthRate = data["Growth Rate"]
+    var percentage = data["World Population Percentage"]
+
+    var title = `${country}'s World Population Rank: ${rank}`;
+    var titleClass = document.getElementsByClassName("narrationTitle");
+    titleClass[0].innerHTML += title; 
+
+
+    var text = `${country} is in ${continent} and the capital is ${capital}. <br>
+                ${country} has ${percentage}% of the world population.
+                The country's total area is ${area}km², with the population density of ${density} per km². <br>
+                The latest population growth rate is ${growthRate}%.`;
+
+    var textClass = document.getElementsByClassName("narrationText");
+    textClass[0].innerHTML += text; 
 }

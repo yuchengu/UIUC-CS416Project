@@ -1,20 +1,39 @@
 <html>
 <title>World Population</title>
-<header>World Population</header>
+
+<header>
+    <h1>World Population</h1>
+</header>
+
 <script src='https://d3js.org/d3.v5.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/d3-annotation/2.5.1/d3-annotation.min.js'></script>
+
 <script src='app.js'></script>
 <link rel="stylesheet" href="style.css" type="text/css">
+
+
+<div id="paragarph">
+    <p id="p">This is a paragraph.</p>
+</div>
 
 <body onload='init()'>
 </body>
 
 <body>
-    <div id="pieChart"></div>
-    <div id="barChart"></div>  
+    <div id="pieChart">
+        <p>
+            Select a country to explore more:
+        </p>
+        <div id="pieTooltip" opacity = 0></div>
+    </div>
+    <div id="narration">
+        <h1 class ="narrationTitle"></h1>
+        <p class ="narrationText"></p>
+    </div>
+    <div id="barChart">
+        <div id="barTooltip" opacity = 0></div>
+    </div>  
     <div id="lineChart"></div>
 </body>
 
-
-<svg width=1200 height=1200>
-</svg>
 </html>
