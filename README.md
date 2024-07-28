@@ -1,6 +1,6 @@
 # UIUC-CS416Project
 
-A narrative visualization using drill down story. 
+A narrative visualization in drill down story to demonstrate the global population distribution and growth trends for individual countries. 
 
 Published on: https://yuchengu.github.io/UIUC-CS416Project/
 

@@ -2,7 +2,7 @@
 #pieChart {
 	position: absolute;
 	top: 100px;
-	left: 400px;
+	left: 350px;
 	width: 400px;
 	height: 400px;
 	z-index: 2;
@@ -22,50 +22,31 @@
 	height: 150px;
 }
 
-/* #narration {
-	position: absolute;
-	top: 300px;
-	left: 400px;
-	width: 400px;
-	height: 400px;
-	z-index: 1;
-} */
-
 #paragarph {
 	position: relative;
 	top: 150px;
-	left: 50px;
-	/* right: 100px; */
+	left: 30px;
 	width: 300px;
 	height: 400px;
+	font-size: 18px;
 }
 
 .title {
-	/* font-family: Verdana; */
 	font-size: 18px;
 	font-weight: bold;
 }
 
 /* Narration Info Styles */
 .narrationTitle {
-	font-size: 32px;
+	font-size: 30px;
 	font-weight: bold;
 }
 
 .narrationText {
-	/* font-family: Verdana; */
-	font-size: 18px;
-	/* font-weight: bold; */
-	/* font-style: italic; */
+	font-size: 16px;
 }
 
 /* Pie Chart Styles */
-/* .slice { */
-	/* font-size: 12pt; */
-	/* font-family: Verdana; */
-	/* fill: black; */
-	/* font-weight: bold; */
-/* } */
 
 #pieTooltip {
 	position: absolute;
@@ -81,15 +62,12 @@
 
 .line {
 	fill: none;
-	/*stroke: steelblue;*/
 	stroke-width: 3px;
 }
 
 #lineChartTitle {
-	/* font-family: Verdana; */
 	font-size: 72px;
 	fill: grey;
 	text-anchor: middle;
 	font-weight: bold;
-	/*font-style: italic;*/
 }

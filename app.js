@@ -227,7 +227,7 @@ function displayPieChart(data) {
             .style('stroke-opacity', 1.0)
             .attr("d", arc);
 
-        d3.select(".annotations").remove()
+        d3.selectAll("#pieChart").select(".annotations").remove()
 
         var country = d.data['Country/Territory'];
         var dataRow = getCountryPopulation(country);
@@ -448,7 +448,7 @@ function drawLineChartHelper(data, color, update) {
             .annotations(annotations)
 
         svg.append("g")
-            .attr("class", "annotation-group")
+            .attr("class", "annotation-group-line")
             .call(makeAnnotations)
 
     } else {
@@ -510,10 +510,11 @@ function getNarrationInfo(data, country) {
     titleClass[0].innerHTML = title;
 
 
-    var text = `${country} is in ${continent} and the capital is ${capital}. <br>
-                ${country} has ${percentage}% of the world population.
-                The country's total area is ${area}km², with the population density of ${density} per km². <br>
-                The latest population growth rate is ${growthRate}%.`;
+    var text = `${country} is in ${continent} and the capital is ${capital}. <br><br>
+                ${country} has ${percentage}% of the world population. <br><br>
+                The country's total area is ${area}km², with the population density of ${density} per km². <br><br>
+                The latest population growth rate is ${growthRate}%. <br><br>
+                Choose another country to contine explore!`;
 
     var textClass = document.getElementsByClassName("narrationText");
     textClass[0].innerHTML = text;
