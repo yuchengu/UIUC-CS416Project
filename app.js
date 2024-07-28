@@ -121,9 +121,9 @@ function displayPieChart(data) {
     const annotations = [
         {
             note: {
-                label: "China and India has the largest populations, consists of 1/3 of the world population.",
+                label: "China and India have the top two largest populations, consists of 1/3 of the world population.",
                 title: "China ranked 1",
-                wrap: 160,
+                wrap: 140,
                 align: "middle"
             },
             connector: {
@@ -131,7 +131,7 @@ function displayPieChart(data) {
             },
             x: 120,
             y: -200,
-            dy: 20,
+            dy: 10,
             dx: 200
         },
         {
