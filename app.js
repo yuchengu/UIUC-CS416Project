@@ -514,6 +514,7 @@ function getNarrationInfo(data, country) {
                 ${country} has ${percentage}% of the world population. <br><br>
                 The country's total area is ${area}km², with the population density of ${density} per km². <br><br>
                 The latest population growth rate is ${growthRate}%. <br><br>
+                Refresh to see the world's total population charts again. <br><br>
                 Choose another country to contine explore!`;
 
     var textClass = document.getElementsByClassName("narrationText");
