@@ -1,5 +1,7 @@
 var data;
 var totalData;
+var selected = false;
+var previous
 
 /**
  * Initialize the page with loading data and graph
@@ -55,7 +57,7 @@ function getCountryPopulation(country) {
 function showDiv(element) {
     element.style.display = "block";
 }
-  
+
 function closeDiv(element) {
     element.style.display = "none";
 }
@@ -73,8 +75,8 @@ function displayPieChart(data) {
     var svg = d3.selectAll("#pieChart")
         .data([data])
         .append("svg")
-        .attr("width", width)
-        .attr("height", height)
+        .attr("width", width + 200)
+        .attr("height", height + 200)
         .append("g")
         .attr("transform", "translate(" + outerRadius + "," + outerRadius + ")");
 
@@ -87,81 +89,152 @@ function displayPieChart(data) {
         .data(pie)
         .enter()
         .append("g")
-            .attr("class", "slice")
-            .on("mouseover", function(d, i) {
-                d3.select(this)
-                    .select("path")
-                    .transition()
-                    .duration(750)
-                    .attr("d", arcMouseOver);
+        .attr("class", "slice")
+        .on("mouseover", mouseover)
+        .on("mouseout", mouseout)
+        .on("click", clickToUpdate);
 
-                var annotation = d.data['Country/Territory'] + ": " + d.data['World Population Percentage'] + "%";
-        
-                var coord = d3.mouse(document.getElementById("pieChart"));
-                var x = coord[0], 
-                    y = coord[1];
-                
-                var tooltip = d3.select("#pieTooltip")
-                tooltip.style("opacity", 1)
-                    .style("opacity", 1)
-                    .style("background", "white")
-                    .style("left", x + 15 + "px")
-                    .style("top", y + 15 + "px")
-                    .html(annotation);        
-            })
-            .on("mouseout", function(d, i) {
-                d3.select(this).select("path")
-                    .transition()
-                    .duration(750)
-                    .attr("d", arc);
-
-                d3.select("#pieTooltip").style("opacity", 0);
-            })
-            .on("click", clickToUpdate);
-    
     slices.append('path')
         .attr('d', arc)
         .attr("fill", function (d, i) { return color(i); })
         .style("opacity", 0.7);
 
-    slices
-        .filter(function (d) { return d.endAngle - d.startAngle > .1; })
+    slices.filter(function (d) { return d.endAngle - d.startAngle > .1; })
         .append('text')
-            .text(function (d) { return d.data['Country/Territory'] })
-            .attr("transform", function (d) { return "translate(" + arc.centroid(d) + ")rotate(" + angle(d) + ")"; })
-            .attr("text-anchor", "middle")
-            .attr("class", "slice");
-    
+        .text(function (d) { return d.data['Country/Territory'] })
+        .attr("transform", function (d) { return "translate(" + arc.centroid(d) + ")rotate(" + angle(d) + ")"; })
+        .attr("text-anchor", "middle")
+        .attr("class", "slice");
+
     d3.selectAll("slice").selectAll("path").transition()
         .duration(750)
         .delay(10)
         .attr("d", arc);
-
-    // // Pie chart title			
+		
     svg.append("text")
         .attr("text-anchor", "middle")
         .text("World Population 2022")
         .attr("class", "title");
-    
-    
-    // var narrationDiv = document.getElementById("narration");
-    // closeDiv(narrationDiv);
+
+
+    // Add annotations
+    const annotations = [
+        {
+            note: {
+                label: "China and India has the largest populations, consists of 1/3 of the world population.",
+                title: "China ranked 1",
+                wrap: 160,
+                align: "middle"
+            },
+            connector: {
+                end: "dot"
+            },
+            x: 120,
+            y: -200,
+            dy: 20,
+            dx: 200
+        },
+        {
+            note: {
+                title: "India ranked 2",
+                align: "middle"
+            },
+            connector: {
+                end: "dot"
+            },
+            x: 220,
+            y: 20,
+            dy: -60,
+            dx: 100
+        },
+        {
+            note: {
+                title: "U.S. ranked 3",
+                align: "middle"
+            },
+            connector: {
+                end: "dot"
+            },
+            x: 170,
+            y: 170,
+            dy: 50,
+            dx: 50
+        },
+    ].map(function (d) { d.color = "#E8336D"; return d })
+
+    const makeAnnotations = d3.annotation()
+        .type(d3.annotationLabel)
+        .annotations(annotations)
+
+    svg.append("g")
+        .attr("class", "annotation-group")
+        .call(makeAnnotations)
 
     function angle(d) {
         var a = (d.startAngle + d.endAngle) * 90 / Math.PI - 90;
         return a > 90 ? a - 180 : a;
     }
 
+    function mouseover(d, i) {
+        d3.select(this)
+            .select("path")
+            .transition()
+            .duration(750)
+            .attr("d", arcMouseOver);
+
+        var text = d.data['Country/Territory'] + ": " + d.data['World Population Percentage'] + "%";
+
+        var coord = d3.mouse(document.getElementById("pieChart"));
+        var x = coord[0],
+            y = coord[1];
+
+        var tooltip = d3.select("#pieTooltip")
+        tooltip.style("opacity", 1)
+            .style("opacity", 1)
+            .style("background", "white")
+            .style("left", x + 15 + "px")
+            .style("top", y + 15 + "px")
+            .html(text);
+    }
+
+    function mouseout(d, i) {
+        d3.select(this).select("path")
+            .transition()
+            .duration(750)
+            .attr("d", arc);
+
+        d3.select("#pieTooltip").style("opacity", 0);
+    }
+
     function clickToUpdate(d, i) {
+        if (!selected) {
+            selected = true;
+        } else {
+            d3.select(previous)
+                .select("path")
+                .style('stroke-opacity', 0.0)
+                .attr("d", arc);
+        }
+
+        previous = this;
+
+        d3.select(this)
+            .select("path")
+            .transition()
+            .duration(750)
+            .attr("stroke", "black")
+            .attr("stroke-width", 1.5)
+            .style('stroke-opacity', 1.0)
+            .attr("d", arc);
+
+        d3.select(".annotations").remove()
+
         var country = d.data['Country/Territory'];
         var dataRow = getCountryPopulation(country);
 
         updateBarChart(dataRow, color(i), country);
         updateLineChart(dataRow, color(i));
         getNarrationInfo(dataRow, country);
-
-        var pieChartDiv = document.getElementById("pieChart");
-        closeDiv(pieChartDiv);
     }
 }
 
@@ -253,24 +326,24 @@ function drawBarChartHelper(data, color, title, update) {
 
     // Add tooltip
     plot.selectAll("rect")
-    .on("mouseover", function(d, i) {
-        var annotation = "Population: " + d;
+        .on("mouseover", function (d, i) {
+            var annotation = "Population: " + d;
 
-        var coord = d3.mouse(document.getElementById("barChart"));
-        var x = coord[0], 
-            y = coord[1];
+            var coord = d3.mouse(document.getElementById("barChart"));
+            var x = coord[0],
+                y = coord[1];
 
-        var tooltip = d3.select("#barTooltip")
-        tooltip.style("opacity", 1)
-            .style("opacity", 1)
-            .style("background", "white")
-            .style("left", x + 10 + "px")
-            .style("top", y + 10 + "px")
-            .html(annotation);
-    })
-    .on("mouseout", function(d, i) {
-        d3.select("#barTooltip").style("opacity", 0);
-    })
+            var tooltip = d3.select("#barTooltip")
+            tooltip.style("opacity", 1)
+                .style("opacity", 1)
+                .style("background", "white")
+                .style("left", x + 10 + "px")
+                .style("top", y + 10 + "px")
+                .html(annotation);
+        })
+        .on("mouseout", function (d, i) {
+            d3.select("#barTooltip").style("opacity", 0);
+        })
 }
 
 function displayBarChart(totalData) {
@@ -301,8 +374,8 @@ function updateBarChart(dataRow, colorChosen, country) {
 
 function drawLineChartHelper(data, color, update) {
     var margin = { top: 30, right: 10, bottom: 0, left: 50 },
-    width = 600 - margin.left - margin.right,
-    height = 150 - margin.top - margin.bottom;
+        width = 600 - margin.left - margin.right,
+        height = 150 - margin.top - margin.bottom;
 
     var xScale = d3.scaleLinear()
         .domain([0, data.length - 1])
@@ -320,8 +393,8 @@ function drawLineChartHelper(data, color, update) {
         var svg = d3.select("#lineChart")
             .append("svg")
             .datum(data)
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
+            .attr("width", width + margin.left + margin.right + 200)
+            .attr("height", height + margin.top + margin.bottom + 200)
 
         var plot = svg
             .append("g")
@@ -351,6 +424,32 @@ function drawLineChartHelper(data, color, update) {
             .attr("stroke", "lightgrey")
             .append("title")
             .text(function (d) { return d; });
+
+        // Add annotations
+        const annotations = [
+            {
+                note: {
+                    title: "Population in 2022",
+                    wrap: 160,
+                    align: "left"
+                },
+                connector: {
+                    end: "arrow"
+                },
+                x: 560,
+                y: 60,
+                dy: 50,
+                dx: 100
+            }
+        ].map(function (d) { d.color = "#E8336D"; return d })
+
+        const makeAnnotations = d3.annotation()
+            .type(d3.annotationLabel)
+            .annotations(annotations)
+
+        svg.append("g")
+            .attr("class", "annotation-group")
+            .call(makeAnnotations)
 
     } else {
         var svg = d3.select("#lineChartPlot");
@@ -391,7 +490,6 @@ function displayLineChart(totalData) {
 
 
 function updateLineChart(dataRow, colorChosen) {
-
     var countryPopulationData = getYearPopulation(dataRow, '');
 
     drawLineChartHelper(countryPopulationData, colorChosen, true);
@@ -399,9 +497,6 @@ function updateLineChart(dataRow, colorChosen) {
 
 
 function getNarrationInfo(data, country) {
-    var narrationDiv = document.getElementById("narration");
-    showDiv(narrationDiv);
-
     var rank = data["Rank"]
     var capital = data["Capital"]
     var continent = data["Continent"]
@@ -412,7 +507,7 @@ function getNarrationInfo(data, country) {
 
     var title = `${country}'s World Population Rank: ${rank}`;
     var titleClass = document.getElementsByClassName("narrationTitle");
-    titleClass[0].innerHTML += title; 
+    titleClass[0].innerHTML = title;
 
 
     var text = `${country} is in ${continent} and the capital is ${capital}. <br>
@@ -421,5 +516,8 @@ function getNarrationInfo(data, country) {
                 The latest population growth rate is ${growthRate}%.`;
 
     var textClass = document.getElementsByClassName("narrationText");
-    textClass[0].innerHTML += text; 
+    textClass[0].innerHTML = text;
+
+    var paragarphDiv = document.getElementById("p");
+    closeDiv(paragarphDiv);
 }

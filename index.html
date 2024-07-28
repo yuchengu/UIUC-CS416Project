@@ -1,19 +1,25 @@
 <html>
-<title>World Population</title>
+<title>World Population Distribution</title>
 
 <header>
-    <h1>World Population</h1>
+    <h1>World Population Distribution</h1>
 </header>
 
 <script src='https://d3js.org/d3.v5.min.js'></script>
-<script src='https://cdnjs.cloudflare.com/ajax/libs/d3-annotation/2.5.1/d3-annotation.min.js'></script>
+<script src="https://rawgit.com/susielu/d3-annotation/master/d3-annotation.min.js"></script>
 
 <script src='app.js'></script>
 <link rel="stylesheet" href="style.css" type="text/css">
 
 
 <div id="paragarph">
-    <p id="p">This is a paragraph.</p>
+    <p id="p">
+        Explore the dynamic patterns of the world's population distribution through this interactive narrative. <br><br>
+        Begin your journey by interacting with the pie/donut chart. <br><br>
+        Click on a slice to dive deeper into a country's population story. 
+    </p>
+    <h3 class ="narrationTitle"></h3>
+    <p class ="narrationText"></p>
 </div>
 
 <body onload='init()'>
@@ -21,14 +27,7 @@
 
 <body>
     <div id="pieChart">
-        <p>
-            Select a country to explore more:
-        </p>
         <div id="pieTooltip" opacity = 0></div>
-    </div>
-    <div id="narration">
-        <h1 class ="narrationTitle"></h1>
-        <p class ="narrationText"></p>
     </div>
     <div id="barChart">
         <div id="barTooltip" opacity = 0></div>
