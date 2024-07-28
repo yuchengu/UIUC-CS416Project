@@ -1,0 +1,108 @@
+
+/* General Styles */
+
+#pieChart {
+	position: absolute;
+	top: 100px;
+	left: 100px;
+	width: 400px;
+	height: 400px;
+}
+
+#barChart {
+	position: absolute;
+	top: 250px;
+	left: 800px;
+	height: 400px;
+}
+
+#lineChart {
+	position: absolute;
+	top: 100px;
+	left: 850px;
+	height: 150px;
+}
+
+.title {
+	/* font-family: Verdana; */
+	font-size: 18px;
+	font-weight: bold;
+}
+
+/* Pie Chart Styles */
+
+.slice {
+	font-size: 12pt;
+	/* font-family: Verdana; */
+	fill: black;
+	/* font-weight: bold; */
+}
+
+
+/* Bar Chart Styles */
+
+/* Line Chart Styles */
+
+.axis path,
+.axis line {
+	fill: none;
+	stroke: black;
+	shape-rendering: crispEdges;
+}
+
+.line {
+	fill: none;
+	/*stroke: steelblue;*/
+	stroke-width: 3px;
+}
+
+
+.axis text {
+	font-family: Verdana;
+	font-size: 11px;
+}
+
+
+
+.xAxis {
+	font-family: verdana;
+	font-size: 11px;
+	fill: black;
+}
+
+.yAxis {
+	font-family: verdana;
+	font-size: 11px;
+	fill: white;
+}
+
+
+table {
+	border-collapse: collapse;
+	border: 0px;
+	font-family: Verdana;
+	color: #5C5558;
+	font-size: 12px;
+	text-align: right;
+}
+
+td {
+	padding-left: 10px;
+}
+
+#lineChartTitle1 {
+	font-family: Verdana;
+	font-size: 14px;
+	fill: lightgrey;
+	font-weight: bold;
+	text-anchor: middle;
+}
+
+#lineChartTitle2 {
+	font-family: Verdana;
+	font-size: 72px;
+	fill: grey;
+	text-anchor: middle;
+	font-weight: bold;
+	/*font-style: italic;*/
+}
